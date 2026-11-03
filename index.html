@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eric Yeh｜校園網路與系統維運</title>
+<meta name="description" content="Eric Yeh 的個人履歷：校園無線漫遊、Kubernetes、自動化腳本與小型網頁系統。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Noto+Sans+TC:wght@400;500;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #E9EDF0;
+    --ink: #101B33;
+    --muted: #566074;
+    --blue: #2B5BFF;
+    --yellow: #F0B90B;
+    --green: #17A06E;
+    --line: #C5CCD6;
+    --wrap: 1080px;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Noto Sans TC", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 clamp(20px, 5vw, 48px); }
+
+  /* 頂部 */
+  header.top { padding: 28px 0; }
+  header.top .wrap { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .brand { font-family: "Bricolage Grotesque", "Noto Sans TC", sans-serif; font-weight: 800; font-size: 20px; text-decoration: none; }
+  nav a { margin-left: 24px; text-decoration: none; font-weight: 500; color: var(--muted); }
+  nav a:hover { color: var(--blue); text-decoration: underline; text-underline-offset: 6px; }
+
+  /* 首屏 */
+  .hero { padding: clamp(40px, 9vw, 110px) 0 clamp(40px, 7vw, 80px); }
+  h1 {
+    margin: 0;
+    font-weight: 900;
+    font-size: clamp(36px, 7.4vw, 88px);
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    max-width: 13em;
+  }
+  .hero p.lead { margin: 28px 0 0; max-width: 34em; font-size: 19px; color: var(--muted); }
+
+  /* 跳線：首屏唯一的動態 */
+  .route { position: relative; height: 150px; margin-top: clamp(48px, 7vw, 88px); }
+  .cable {
+    position: absolute; left: 6%; right: 6%; top: 50px; height: 8px;
+    background: var(--line); border-radius: 4px; overflow: hidden;
+  }
+  .cable i { position: absolute; inset: 0; background: var(--blue); transform-origin: left; transform: scaleX(0); }
+  .node { position: absolute; top: 33px; width: 42px; height: 42px; margin-left: -21px; border-radius: 10px; background: var(--paper); border: 4px solid var(--line); transition: border-color .3s, background .3s; }
+  .node.on { border-color: var(--blue); }
+  .node.done { border-color: var(--green); background: var(--green); }
+  .n1 { left: 6%; } .n2 { left: 50%; } .n3 { left: 94%; }
+  .node-label { position: absolute; top: 92px; transform: translateX(-50%); font-weight: 500; font-size: 15px; white-space: nowrap; }
+  .l1 { left: 6%; transform: none; margin-left: -21px; }
+  .l2 { left: 50%; }
+  .l3 { transform: none; right: calc(6% - 21px); left: auto; }
+  .status { position: absolute; left: 6%; top: 118px; margin: 0; font-size: 14px; color: var(--muted); margin-left: -21px; min-height: 1.8em; }
+  .status.ok { color: var(--green); font-weight: 500; }
+  .packet { position: absolute; top: 44px; left: 6%; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; background: var(--yellow); box-shadow: 0 0 0 5px rgba(240,185,11,.28); opacity: 0; }
+
+  .play .cable i { animation: draw 3.6s cubic-bezier(.45,.05,.35,1) .4s forwards; }
+  .play .packet { animation: travel 3.6s cubic-bezier(.45,.05,.35,1) .4s forwards; }
+  @keyframes draw { to { transform: scaleX(1); } }
+  @keyframes travel { 0% { left: 6%; opacity: 1; } 99% { opacity: 1; } 100% { left: 94%; opacity: 0; } }
+
+  /* 區塊 */
+  section { padding: clamp(48px, 7vw, 88px) 0; border-top: 2px solid var(--ink); }
+  h2 { margin: 0 0 40px; font-size: clamp(26px, 4vw, 40px); font-weight: 900; line-height: 1.3; }
+
+  .work { display: grid; grid-template-columns: 1fr; gap: 0; }
+  .item {
+    display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 12px 48px;
+    padding: 28px 0 28px 24px; border-bottom: 1px solid var(--line);
+    border-left: 6px solid var(--c, var(--blue));
+  }
+  .item:first-child { border-top: 1px solid var(--line); }
+  .item h3 { margin: 0; font-size: 22px; line-height: 1.4; font-weight: 900; }
+  .item p { margin: 0; max-width: 34em; }
+  .item .stack { grid-column: 2; color: var(--muted); font-size: 15px; margin-top: -4px; }
+  .item.y { --c: var(--yellow); }
+  .item.g { --c: var(--green); }
+  .item.k { --c: var(--ink); }
+
+  .about { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px 48px; }
+  .about h2 { margin: 0; }
+  .about p { margin: 0 0 1em; max-width: 34em; }
+  .tools { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 32px; }
+  .tools li { padding: 6px 0; border-bottom: 1px solid var(--line); }
+
+  /* 聯絡 */
+  .contact a.big {
+    display: inline-block; font-family: "Bricolage Grotesque", "Noto Sans TC", sans-serif; font-weight: 800;
+    font-size: clamp(32px, 7vw, 84px); line-height: 1.1; text-decoration: none; border-bottom: 6px solid var(--blue);
+  }
+  .contact a.big:hover { color: var(--blue); }
+  .contact p { margin: 24px 0 0; color: var(--muted); }
+  footer { padding: 32px 0 48px; color: var(--muted); font-size: 14px; }
+
+  @media (max-width: 720px) {
+    body { font-size: 16px; }
+    .item, .about { grid-template-columns: 1fr; }
+    .item .stack { grid-column: 1; }
+    .tools { grid-template-columns: 1fr; }
+    nav a { margin-left: 16px; }
+    .node-label { font-size: 13px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .cable i { transform: scaleX(1) !important; animation: none !important; }
+    .packet { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">Eric Yeh</a>
+    <nav aria-label="主選單">
+      <a href="#work">作品</a>
+      <a href="#about">關於</a>
+      <a href="#contact">聯絡</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero wrap">
+    <h1>讓校園裡的每一台裝置，走到哪都連得上網。</h1>
+    <p class="lead">我是 Eric，負責校園網路與系統維運。日常工作是把無線漫遊、伺服器與報修流程整理到好用、好維護，也會自己寫小工具省下重複的手動作業。</p>
+
+    <div class="route" id="route" role="img" aria-label="示意：裝置從宿舍移動到教學大樓，再到外校，全程維持連線">
+      <div class="cable"><i></i></div>
+      <div class="node n1 on"></div>
+      <div class="node n2"></div>
+      <div class="node n3"></div>
+      <div class="packet"></div>
+      <span class="node-label l1">宿舍</span>
+      <span class="node-label l2">教學大樓</span>
+      <span class="node-label l3">外校</span>
+      <p class="status" id="status" aria-live="polite">準備連線</p>
+    </div>
+  </div>
+
+  <section id="work">
+    <div class="wrap">
+      <h2>做過的事</h2>
+      <div class="work">
+        <article class="item">
+          <h3>校園 eduroam 無線漫遊</h3>
+          <p>整理從加入 TANet、串接帳號目錄到申請憑證的完整流程，用 FreeRADIUS 依帳號所屬單位分流驗證，並寫成可重複使用的部署手冊。</p>
+          <p class="stack">FreeRADIUS、Docker、Raspberry Pi 測試環境</p>
+        </article>
+        <article class="item y">
+          <h3>設備報修追蹤系統</h3>
+          <p>單頁網頁應用，同仁送出報修單後，可以隨時查到處理進度。不需要安裝或建置，打開檔案就能用。</p>
+          <p class="stack">HTML、CSS、JavaScript</p>
+        </article>
+        <article class="item g">
+          <h3>個人網站與留言板</h3>
+          <p>繁體中文的履歷網站，訪客可以直接留言。刻意不用框架，維持載入速度與長期好維護。</p>
+          <p class="stack">HTML、CSS、JavaScript、Firebase</p>
+        </article>
+        <article class="item k">
+          <h3>Kubernetes 學習實驗</h3>
+          <p>跟著教學書與實驗手冊逐章動手做，把練習過程與筆記留在自己的儲存庫，方便日後回頭查。</p>
+          <p class="stack">Kubernetes、Markdown 筆記</p>
+        </article>
+        <article class="item">
+          <h3>日常自動化小工具</h3>
+          <p>自動整理桌面與下載資料夾、下載影片字幕、把 AI 摘要輸出成 Word 文件。每一支都是單一檔案，拿了就能跑。</p>
+          <p class="stack">Python、PowerShell</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap about">
+      <h2>工作方式</h2>
+      <div>
+        <p>我習慣先把流程寫下來，再動手設定。每個系統都附上部署步驟與測試方法，換人接手也能照著做。</p>
+        <p>常用工具：</p>
+        <ul class="tools">
+          <li>FreeRADIUS</li>
+          <li>Docker</li>
+          <li>Kubernetes</li>
+          <li>WSL2</li>
+          <li>Python</li>
+          <li>PowerShell</li>
+          <li>WordPress</li>
+          <li>Firebase</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact">
+    <div class="wrap">
+      <h2>想合作或聊聊？</h2>
+      <a class="big" href="https://github.com/ericyeh-arch">github.com/ericyeh-arch</a>
+      <p>作品的原始碼都在 GitHub，歡迎直接開 Issue 或來信。</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">© 2026 Eric Yeh</div>
+</footer>
+
+<script>
+  (function () {
+    var route = document.getElementById('route');
+    var status = document.getElementById('status');
+    var nodes = route.querySelectorAll('.node');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function finish() {
+      nodes.forEach(function (n) { n.classList.add('on'); });
+      nodes[2].classList.add('done');
+      status.textContent = '已連線，全程沒有斷線';
+      status.classList.add('ok');
+    }
+    if (reduce) { finish(); return; }
+
+    // 以時間點對應封包走到各節點的位置
+    requestAnimationFrame(function () { route.classList.add('play'); });
+    setTimeout(function () { status.textContent = '從宿舍出發'; }, 400);
+    setTimeout(function () { nodes[1].classList.add('on'); status.textContent = '經過教學大樓，自動切換基地台'; }, 2200);
+    setTimeout(function () { nodes[2].classList.add('on'); status.textContent = '抵達外校，驗證中'; }, 3700);
+    setTimeout(finish, 4300);
+  })();
+</script>
+</body>
+</html>
